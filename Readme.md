@@ -64,7 +64,7 @@ public class InternalPathExample {
  // root dir is: /Users/user/Projects/MyProject
  // example for startInternalPath
     
- CommentRemover commentRemover = new CommentRemover.CommentRemoverBuilder()
+ CommentRemover commentRemover = CommentRemover.builder()
         .removeJava(true) // Remove Java file Comments....
         .removeJavaScript(true) // Remove JavaScript file Comments....
         .removeJSP(true) // etc.. goes like that
@@ -92,7 +92,7 @@ public class ExternalPathExample {
 
  // example for externalInternalPath
     
- CommentRemover commentRemover = new CommentRemover.CommentRemoverBuilder()
+ CommentRemover commentRemover = CommentRemover.builder()
         .removeJava(true) // Remove Java file Comments....
         .removeJavaScript(true) // Remove JavaScript file Comments....
         .removeJSP(true) // etc..

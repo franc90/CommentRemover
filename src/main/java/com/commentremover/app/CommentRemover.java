@@ -101,7 +101,11 @@ public final class CommentRemover {
         return excludePackages;
     }
 
-    public static class CommentRemoverBuilder {
+    public static CommentRemoverBuilder builder() {
+        return new CommentRemoverBuilder();
+    }
+
+    protected static class CommentRemoverBuilder {
 
         private boolean removeCSS = false;
         private boolean removeHTML = false;
