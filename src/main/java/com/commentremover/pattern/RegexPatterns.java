@@ -1,34 +1,36 @@
 package com.commentremover.pattern;
 
+import java.util.regex.Pattern;
+
 public class RegexPatterns {
 
-    private static final String COMMENT_REGEX_MULTI_AND_SINGLE_LINE = "(/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/|[\\t]*//.*)|\"(\\\\.|[^\\\\\"])*\"|'(\\\\[\\s\\S]|[^'])*'";
+    private static final Pattern COMMENT_REGEX_MULTI_AND_SINGLE_LINE = Pattern.compile("(/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/|[\\t]*//.*)|\"(\\\\.|[^\\\\\"])*\"|'(\\\\[\\s\\S]|[^'])*'");
 
-    private static final String COMMENT_REGEX_CSS = "(/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|\"(\\\\.|[^\\\\\"])*\"|'(\\\\[\\s\\S]|[^'])*'";
+    private static final Pattern COMMENT_REGEX_CSS = Pattern.compile("(/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|\"(\\\\.|[^\\\\\"])*\"|'(\\\\[\\s\\S]|[^'])*'");
 
-    private static final String COMMENT_REGEX_PROPERTIES = "([\\t]*#.*)|(=.*)";
+    private static final Pattern COMMENT_REGEX_PROPERTIES = Pattern.compile("([\\t]*#.*)|(=.*)");
 
-    private static final String COMMENT_REGEX_HTML_XML = "<!--(?!\\s*(?:\\[if [^\\]]+]|<!|>))(?:(?!-->)(.|\\n))*-->";
+    private static final Pattern COMMENT_REGEX_HTML_XML = Pattern.compile("<!--(?!\\s*(?:\\[if [^\\]]+]|<!|>))(?:(?!-->)(.|\\n))*-->");
 
-    private static final String COMMENT_REGEX_JSP = "<%--(?!\\s*(?:\\[if [^\\]]+]|<!|>))(?:(?!-->)(.|\\n))*--%>";
+    private static final Pattern COMMENT_REGEX_JSP = Pattern.compile("<%--(?!\\s*(?:\\[if [^\\]]+]|<!|>))(?:(?!-->)(.|\\n))*--%>");
 
-    public static String getCommentRegexMultiAndSingleLine() {
+    public static Pattern getCommentRegexMultiAndSingleLine() {
         return COMMENT_REGEX_MULTI_AND_SINGLE_LINE;
     }
 
-    public static String getCommentRegexCss() {
+    public static Pattern getCommentRegexCss() {
         return COMMENT_REGEX_CSS;
     }
 
-    public static String getCommentRegexProperties() {
+    public static Pattern getCommentRegexProperties() {
         return COMMENT_REGEX_PROPERTIES;
     }
 
-    public static String getCommentRegexHtmlXml() {
+    public static Pattern getCommentRegexHtmlXml() {
         return COMMENT_REGEX_HTML_XML;
     }
 
-    public static String getCommentRegexJsp() {
+    public static Pattern getCommentRegexJsp() {
         return COMMENT_REGEX_JSP;
     }
 }

@@ -1,14 +1,13 @@
-package com.commentremover.processors;
+package com.commentremover.processors.impl;
 
 import com.commentremover.app.CommentRemover;
 import com.commentremover.exception.CommentRemoverException;
 import com.commentremover.handling.RegexSelector;
+import com.commentremover.pattern.FileExtension;
 
 import java.io.IOException;
 
 public class JSPFileProcessor extends HTMLFileProcessor {
-
-    private static final String regex = RegexSelector.getRegexByFileType("jsp");
 
     public JSPFileProcessor(CommentRemover commentRemover) {
         super(commentRemover);
@@ -16,6 +15,6 @@ public class JSPFileProcessor extends HTMLFileProcessor {
 
     @Override
     public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(regex);
+        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.JSP));
     }
 }

@@ -1,8 +1,10 @@
-package com.commentremover.processors;
+package com.commentremover.processors.impl;
 
 import com.commentremover.app.CommentRemover;
 import com.commentremover.exception.CommentRemoverException;
 import com.commentremover.handling.RegexSelector;
+import com.commentremover.pattern.FileExtension;
+import com.commentremover.processors.AbstractFileProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,15 +13,13 @@ import java.util.regex.Pattern;
 
 public class XMLFileProcessor extends AbstractFileProcessor {
 
-    private static final String regex = RegexSelector.getRegexByFileType("xml");
-
     public XMLFileProcessor(CommentRemover commentRemover) {
         super(commentRemover);
     }
 
     @Override
     public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(regex);
+        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.XML));
     }
 
     @Override
@@ -28,7 +28,7 @@ public class XMLFileProcessor extends AbstractFileProcessor {
     }
 
     @Override
-    protected StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher) throws StackOverflowError{
+    protected StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher) throws StackOverflowError {
         String sFileContent = fileContent.toString();
         boolean isTodosRemoving = commentRemover.isRemoveTodos();
 
@@ -36,12 +36,8 @@ public class XMLFileProcessor extends AbstractFileProcessor {
 
             String foundToken = matcher.group();
 
-            if (isTodosRemoving) {
+            if (isTodosRemoving || !doesContainTodo(foundToken)) {
                 sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
-            } else {
-                if (!isContainTodo(foundToken)) {
-                    sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
-                }
             }
         }
         fileContent = new StringBuilder(sFileContent);

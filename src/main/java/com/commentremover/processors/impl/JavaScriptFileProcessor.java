@@ -1,4 +1,4 @@
-package com.commentremover.processors;
+package com.commentremover.processors.impl;
 
 import com.commentremover.app.CommentRemover;
 

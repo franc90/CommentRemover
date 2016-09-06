@@ -1,4 +1,10 @@
-package com.commentremover.processors;
+package com.commentremover.processors.impl;
+
+import com.commentremover.app.CommentRemover;
+import com.commentremover.exception.CommentRemoverException;
+import com.commentremover.handling.RegexSelector;
+import com.commentremover.pattern.FileExtension;
+import com.commentremover.processors.AbstractFileProcessor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,19 +15,13 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.commentremover.app.CommentRemover;
-import com.commentremover.exception.CommentRemoverException;
-import com.commentremover.handling.RegexSelector;
-
 public class JavaFileProcessor extends AbstractFileProcessor {
 
-    private static final String regex;
     private static final String singleLineCommentSymbol;
     private static final String singleLineCommentEscapeToken;
     private static final String singleLineTodoCommentEscapePrefix;
 
     static {
-        regex = RegexSelector.getRegexByFileType("java");
         singleLineCommentSymbol = "//";
         singleLineCommentEscapeToken = "//" + UUID.randomUUID().toString();
         singleLineTodoCommentEscapePrefix = UUID.randomUUID().toString();
@@ -33,7 +33,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
 
     @Override
     public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(regex);
+        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.JAVA));
     }
 
     @Override
@@ -50,17 +50,17 @@ public class JavaFileProcessor extends AbstractFileProcessor {
 
         StringBuilder content = new StringBuilder((int) file.length());
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        for (String temp = br.readLine(); temp != null; temp = br.readLine()) {
-
-            String trimmedTemp = temp.trim();
-            if (trimmedTemp.startsWith(singleLineCommentSymbol) && !isContainTodo(trimmedTemp)) {
-                content.append(singleLineCommentEscapeToken).append("\n");
-            } else {
-                content.append(temp).append("\n");
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+            String temp;
+            while ((temp = br.readLine()) != null) {
+                String trimmedTemp = temp.trim();
+                if (trimmedTemp.startsWith(singleLineCommentSymbol) && !doesContainTodo(trimmedTemp)) {
+                    content.append(singleLineCommentEscapeToken).append("\n");
+                } else {
+                    content.append(temp).append("\n");
+                }
             }
         }
-        br.close();
 
         return content;
     }
@@ -112,7 +112,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
                             foundToken.replace("//", singleLineTodoCommentEscapePrefix));
                 }
 
-                if (!isContainTodo(foundToken)) {
+                if (!doesContainTodo(foundToken)) {
                     sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
                 }
             }
@@ -152,7 +152,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     }
 
     private boolean isSingleLineTodoToken(String foundToken) {
-        return isSingleCommentToken(foundToken) && isContainTodo(foundToken);
+        return isSingleCommentToken(foundToken) && doesContainTodo(foundToken);
     }
 
     private boolean isCopyRightHeader(String foundToken) {

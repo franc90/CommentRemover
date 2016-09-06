@@ -1,8 +1,10 @@
-package com.commentremover.processors;
+package com.commentremover.processors.impl;
 
 import com.commentremover.app.CommentRemover;
 import com.commentremover.exception.CommentRemoverException;
 import com.commentremover.handling.RegexSelector;
+import com.commentremover.pattern.FileExtension;
+import com.commentremover.processors.AbstractFileProcessor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,12 +17,10 @@ import java.util.regex.Pattern;
 
 public class PropertyFileProcessor extends AbstractFileProcessor {
 
-    private static final String regex;
     private static final String singleLineCommentSymbol;
     private static final String singleLineCommentEscapeToken;
 
     static {
-        regex = RegexSelector.getRegexByFileType("properties");
         singleLineCommentSymbol = "#";
         singleLineCommentEscapeToken = "#" + UUID.randomUUID().toString();
     }
@@ -31,7 +31,7 @@ public class PropertyFileProcessor extends AbstractFileProcessor {
 
     @Override
     public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(regex);
+        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.PROPERTIES));
     }
 
     @Override
@@ -39,18 +39,17 @@ public class PropertyFileProcessor extends AbstractFileProcessor {
 
         StringBuilder content = new StringBuilder((int) file.length());
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        for (String temp = br.readLine(); temp != null; temp = br.readLine()) {
-
-            String trimmedTemp = temp.trim();
-            if (trimmedTemp.startsWith(singleLineCommentSymbol) && !isContainTodo(trimmedTemp)) {
-                content.append(singleLineCommentEscapeToken).append("\n");
-            } else {
-                content.append(temp).append("\n");
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+            String temp;
+            while ((temp = br.readLine()) != null) {
+                String trimmedTemp = temp.trim();
+                if (trimmedTemp.startsWith(singleLineCommentSymbol) && !doesContainTodo(trimmedTemp)) {
+                    content.append(singleLineCommentEscapeToken).append("\n");
+                } else {
+                    content.append(temp).append("\n");
+                }
             }
         }
-
-        br.close();
 
         return content;
     }
@@ -68,12 +67,8 @@ public class PropertyFileProcessor extends AbstractFileProcessor {
                 continue;
             }
 
-            if (isTodosRemoving) {
+            if (isTodosRemoving || !doesContainTodo(foundToken)) {
                 sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
-            } else {
-                if (!isContainTodo(foundToken)) {
-                    sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
-                }
             }
         }
 

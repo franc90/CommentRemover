@@ -1,5 +1,8 @@
 package com.commentremover.utility;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommentUtility {
 
     private static final char EXTENSION_SEPARATOR = '.';
@@ -33,24 +36,26 @@ public class CommentUtility {
         return path.trim();
     }
 
-    public static String[] getExcludePackagesInValidFormForInternalStarting(String[] paths) {
+    public static List<String> getExcludePackagesInValidFormForInternalStarting(List<String> paths) {
 
-        String[] pathArray = new String[paths.length];
-        for (int i = 0; i < pathArray.length; i++) {
-            pathArray[i] = getCurrentPath() + getFileSeparator() + replaceDotWithSlash(paths[i]).trim();
+        List<String> pathsList = new ArrayList<>(paths.size());
+        for (String path : paths) {
+            String fullPath = getCurrentPath() + getFileSeparator() + replaceDotWithSlash(path).trim();
+            pathsList.add(fullPath);
         }
 
-        return pathArray;
+        return pathsList;
     }
 
-    public static String[] getExcludePackagesInValidFormForExternalStarting(String path, String[] paths) {
+    public static List<String> getExcludePackagesInValidFormForExternalStarting(String path, List<String> paths) {
 
-        String[] pathArray = new String[paths.length];
-        for (int i = 0; i < pathArray.length; i++) {
-            pathArray[i] = path + getFileSeparator() + replaceDotWithSlash(paths[i]).trim();
+        List<String> pathList = new ArrayList<>(paths.size());
+        for (String excludePath : paths) {
+            String fullPath = path + getFileSeparator() + replaceDotWithSlash(excludePath).trim();
+            pathList.add(fullPath);
         }
 
-        return pathArray;
+        return pathList;
     }
 
     public static String getExtension(String filename) {
@@ -62,9 +67,9 @@ public class CommentUtility {
         int index = indexOfExtension(filename);
         if (index == -1) {
             return "";
-        } else {
-            return filename.substring(index + 1);
         }
+
+        return filename.substring(index + 1);
     }
 
     private static int indexOfExtension(String filename) {

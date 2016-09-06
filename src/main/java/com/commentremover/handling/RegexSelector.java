@@ -1,31 +1,34 @@
 package com.commentremover.handling;
 
+import com.commentremover.pattern.FileExtension;
 import com.commentremover.pattern.RegexPatterns;
+
+import java.util.regex.Pattern;
 
 public class RegexSelector {
 
-    public static String getRegexByFileType(String fileType) {
+    public static Pattern getRegexByFileType(FileExtension fileExtension) {
 
-        switch (fileType) {
+        switch (fileExtension) {
 
-            case "js":
-            case "java":
+            case JS:
+            case JAVA:
                 return RegexPatterns.getCommentRegexMultiAndSingleLine();
 
-            case "properties":
+            case PROPERTIES:
                 return RegexPatterns.getCommentRegexProperties();
 
-            case "css":
+            case CSS:
                 return RegexPatterns.getCommentRegexCss();
 
-            case "jsp":
+            case JSP:
                 return RegexPatterns.getCommentRegexJsp();
 
-            case "xml":
-            case "html":
+            case XML:
+            case HTML:
                 return RegexPatterns.getCommentRegexHtmlXml();
+            default:
+                return null;
         }
-
-        return null;
     }
 }

@@ -1,65 +1,60 @@
 package com.commentremover.app;
 
 import com.commentremover.exception.CommentRemoverException;
-import com.commentremover.processors.CSSFileProcessor;
-import com.commentremover.processors.HTMLFileProcessor;
-import com.commentremover.processors.JSPFileProcessor;
-import com.commentremover.processors.JavaFileProcessor;
-import com.commentremover.processors.JavaScriptFileProcessor;
-import com.commentremover.processors.PropertyFileProcessor;
-import com.commentremover.processors.XMLFileProcessor;
+import com.commentremover.pattern.FileExtension;
+import com.commentremover.processors.*;
+import com.commentremover.processors.impl.CSSFileProcessor;
+import com.commentremover.processors.impl.HTMLFileProcessor;
+import com.commentremover.processors.impl.JSPFileProcessor;
+import com.commentremover.processors.impl.JavaFileProcessor;
+import com.commentremover.processors.impl.JavaScriptFileProcessor;
+import com.commentremover.processors.impl.PropertyFileProcessor;
+import com.commentremover.processors.impl.XMLFileProcessor;
 import com.commentremover.utility.CommentUtility;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 final class FileProcessRouter {
 
+    private final Map<FileExtension, FileProcessor> fileProcessors;
 
-    private final CommentRemover commentRemover;
     private String currentFilePath;
 
-    private JavaFileProcessor javaFileProcessor;
-    private JavaScriptFileProcessor javaScriptFileProcessor;
-    private PropertyFileProcessor propertyFileProcessor;
-    private JSPFileProcessor jspFileProcessor;
-    private CSSFileProcessor cssFileProcessor;
-    private HTMLFileProcessor htmlFileProcessor;
-    private XMLFileProcessor xmlFileProcessor;
-
-
     protected FileProcessRouter(CommentRemover commentRemover) {
-        this.commentRemover = commentRemover;
+        this.fileProcessors = new HashMap<>();
         initProcessors(commentRemover);
     }
 
     private void initProcessors(CommentRemover commentRemover) {
 
         if (commentRemover.isRemoveJava()) {
-            javaFileProcessor = new JavaFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.JAVA, new JavaFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveJavaScript()) {
-            javaScriptFileProcessor = new JavaScriptFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.JS, new JavaScriptFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveProperties()) {
-            propertyFileProcessor = new PropertyFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.PROPERTIES, new PropertyFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveJSP()) {
-            jspFileProcessor = new JSPFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.JSP, new JSPFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveCSS()) {
-            cssFileProcessor = new CSSFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.CSS, new CSSFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveHTML()) {
-            htmlFileProcessor = new HTMLFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.HTML, new HTMLFileProcessor(commentRemover));
         }
 
         if (commentRemover.isRemoveXML()) {
-            xmlFileProcessor = new XMLFileProcessor(commentRemover);
+            fileProcessors.put(FileExtension.XML, new XMLFileProcessor(commentRemover));
         }
     }
 
@@ -70,57 +65,17 @@ final class FileProcessRouter {
     protected void removeComments() throws IOException, CommentRemoverException {
 
         String fileExtension = CommentUtility.getExtension(currentFilePath);
-
-        switch (fileExtension) {
-
-            case "java":
-                if (commentRemover.isRemoveJava()) {
-                    javaFileProcessor.setCurrentFilePath(currentFilePath);
-                    javaFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "js":
-                if (commentRemover.isRemoveJavaScript()) {
-                    javaScriptFileProcessor.setCurrentFilePath(currentFilePath);
-                    javaScriptFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "properties":
-                if (commentRemover.isRemoveProperties()) {
-                    propertyFileProcessor.setCurrentFilePath(currentFilePath);
-                    propertyFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "jsp":
-                if (commentRemover.isRemoveJSP()) {
-                    jspFileProcessor.setCurrentFilePath(currentFilePath);
-                    jspFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "css":
-                if (commentRemover.isRemoveCSS()) {
-                    cssFileProcessor.setCurrentFilePath(currentFilePath);
-                    cssFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "html":
-                if (commentRemover.isRemoveHTML()) {
-                    htmlFileProcessor.setCurrentFilePath(currentFilePath);
-                    htmlFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
-
-            case "xml":
-                if (commentRemover.isRemoveXML()) {
-                    xmlFileProcessor.setCurrentFilePath(currentFilePath);
-                    xmlFileProcessor.replaceCommentsWithBlanks();
-                }
-                break;
+        FileExtension extension = FileExtension.getForExtensionName(fileExtension);
+        if (extension == null) {
+            return;
         }
+
+        FileProcessor fileProcessor = fileProcessors.get(extension);
+        if (fileProcessor == null) {
+            return;
+        }
+
+        fileProcessor.setCurrentFilePath(currentFilePath);
+        fileProcessor.replaceCommentsWithBlanks();
     }
 }

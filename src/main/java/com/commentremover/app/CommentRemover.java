@@ -1,6 +1,10 @@
 package com.commentremover.app;
 
+import com.commentremover.utility.CollectionsUtils;
+
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public final class CommentRemover {
 
@@ -21,7 +25,8 @@ public final class CommentRemover {
 
     private String startInternalPath;
     private String startExternalPath;
-    private String[] excludePackages;
+    private List<String> excludePackages;
+
 
     private CommentRemover(CommentRemoverBuilder commentRemoverBuilder) {
         this.removeCSS = commentRemoverBuilder.removeCSS;
@@ -97,7 +102,7 @@ public final class CommentRemover {
         return startExternalPath;
     }
 
-    public String[] getExcludePackages() {
+    public List<String> getExcludePackages() {
         return excludePackages;
     }
 
@@ -124,7 +129,7 @@ public final class CommentRemover {
 
         private String startInternalPath = null;
         private String startExternalPath = null;
-        private String[] excludePackages = null;
+        private List<String> excludePackages = new LinkedList<>();
 
         public CommentRemoverBuilder removeCSS(boolean removeCSS) {
             this.removeCSS = removeCSS;
@@ -186,7 +191,15 @@ public final class CommentRemover {
             return this;
         }
 
-        public CommentRemoverBuilder setExcludePackages(String[] excludePackages) {
+        public CommentRemoverBuilder addExcludedPackage(String excludePackage) {
+            if (excludePackages == null) {
+                excludePackages = new LinkedList<>();
+            }
+            excludePackages.add(excludePackage);
+            return this;
+        }
+
+        public CommentRemoverBuilder setExcludePackages(List<String> excludePackages) {
             this.excludePackages = excludePackages;
             return this;
         }
@@ -223,7 +236,7 @@ public final class CommentRemover {
                 ", preserveCopyRightHeaders=" + preserveCopyRightHeaders +
                 ", startInternalPath='" + startInternalPath + '\'' +
                 ", startExternalPath='" + startExternalPath + '\'' +
-                ", excludePackages=" + Arrays.toString(excludePackages) +
+                ", excludePackages=" + CollectionsUtils.concatenate(excludePackages, ",") +
                 '}';
     }
 }

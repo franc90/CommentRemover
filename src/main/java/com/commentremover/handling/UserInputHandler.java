@@ -5,6 +5,7 @@ import com.commentremover.exception.CommentRemoverException;
 import com.commentremover.utility.CommentUtility;
 
 import java.io.File;
+import java.util.List;
 
 public class UserInputHandler {
 
@@ -88,16 +89,17 @@ public class UserInputHandler {
 
     private void checkExcludePackagesPaths(CommentRemover commentRemover) throws CommentRemoverException {
 
-        String[] excludePackagesPaths = commentRemover.getExcludePackages();
-        if (excludePackagesPaths == null) {
+        List<String> excludePackagesPaths = commentRemover.getExcludePackages();
+        if (excludePackagesPaths.isEmpty()) {
             return;
-        } else {
-            if (commentRemover.getStartInternalPath() != null) {
-                excludePackagesPaths = CommentUtility.getExcludePackagesInValidFormForInternalStarting(excludePackagesPaths);
-            } else {
-                excludePackagesPaths = CommentUtility.getExcludePackagesInValidFormForExternalStarting(commentRemover.getStartExternalPath(), excludePackagesPaths);
-            }
         }
+
+        if (commentRemover.getStartInternalPath() != null) {
+            excludePackagesPaths = CommentUtility.getExcludePackagesInValidFormForInternalStarting(excludePackagesPaths);
+        } else {
+            excludePackagesPaths = CommentUtility.getExcludePackagesInValidFormForExternalStarting(commentRemover.getStartExternalPath(), excludePackagesPaths);
+        }
+
 
         for (String path : excludePackagesPaths) {
             File file = new File(path);
