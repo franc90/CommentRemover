@@ -1,7 +1,7 @@
 package com.commentremover.processors.impl;
 
-import com.commentremover.app.CommentRemover;
 import com.commentremover.exception.CommentRemoverException;
+import com.commentremover.handling.CommentType;
 import com.commentremover.handling.RegexSelector;
 import com.commentremover.pattern.FileExtension;
 import com.commentremover.processors.AbstractFileProcessor;
@@ -27,13 +27,9 @@ public class JavaFileProcessor extends AbstractFileProcessor {
         singleLineTodoCommentEscapePrefix = UUID.randomUUID().toString();
     }
 
-    public JavaFileProcessor(CommentRemover commentRemover) {
-        super(commentRemover);
-    }
-
     @Override
-    public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.JAVA));
+    public void replaceCommentsWithBlanks(String currentFilePath) throws IOException, CommentRemoverException {
+        super.replaceCommentsWithBlanks(currentFilePath, RegexSelector.getRegexByFileType(FileExtension.JAVA));
     }
 
     @Override
@@ -43,7 +39,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     }
 
     private boolean isGoingToRemoveSingleComments() {
-        return commentRemover.isRemoveSingleLines();
+        return configuration.getCommentTypes().contains(CommentType.SINGLE_LINE);
     }
 
     private StringBuilder getContentForSingleLinesRemoving(File file) throws IOException {
@@ -69,10 +65,10 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     protected StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher) throws StackOverflowError {
 
         String sFileContent = fileContent.toString();
-        boolean isTodosRemoving = commentRemover.isRemoveTodos();
+        boolean isTodosRemoving = configuration.containsType(CommentType.TODO);
         boolean isBothCommentTypeNotSelected = isBothCommentTypeNotSelected();
-        boolean isPreserveJavaClassHeader = commentRemover.isPreserveJavaClassHeaders();
-        boolean isPreserveCopyrightHeaders = commentRemover.isPreserveCopyrightHeaders();
+        boolean isPreserveJavaClassHeader = !configuration.containsType(CommentType.CLASS_HEADER);
+        boolean isPreserveCopyrightHeaders = !configuration.containsType(CommentType.COPYRIGHT);
         while (matcher.find()) {
 
             String foundToken = matcher.group();
@@ -128,7 +124,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     }
 
     private boolean isBothCommentTypeNotSelected() {
-        return !(commentRemover.isRemoveSingleLines() && commentRemover.isRemoveMultiLines());
+        return !(configuration.containsType(CommentType.SINGLE_LINE) && configuration.containsType(CommentType.MULTI_LINE));
     }
 
     private boolean isDoubleOrSingleQuoteToken(String foundToken) {
@@ -136,7 +132,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     }
 
     private boolean isOnlyMultiLineCommentSelected() {
-        return !commentRemover.isRemoveSingleLines() && commentRemover.isRemoveMultiLines();
+        return !configuration.containsType(CommentType.SINGLE_LINE) && configuration.containsType(CommentType.MULTI_LINE);
     }
 
     private boolean isSingleCommentToken(String foundToken) {
@@ -144,7 +140,7 @@ public class JavaFileProcessor extends AbstractFileProcessor {
     }
 
     private boolean isOnlySingleCommentSelected() {
-        return commentRemover.isRemoveSingleLines() && !commentRemover.isRemoveMultiLines();
+        return configuration.containsType(CommentType.SINGLE_LINE) && !configuration.containsType(CommentType.MULTI_LINE);
     }
 
     private boolean isMultiLineCommentToken(String foundToken) {

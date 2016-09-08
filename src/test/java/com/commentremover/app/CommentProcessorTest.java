@@ -1,6 +1,8 @@
 package com.commentremover.app;
 
 import com.commentremover.exception.CommentRemoverException;
+import com.commentremover.handling.CommentType;
+import com.commentremover.pattern.FileExtension;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -48,44 +50,44 @@ public class CommentProcessorTest {
 
     @Test
     public void testRemovingJavaComments() throws CommentRemoverException {
-        testRemoving(TEST_JAVA, createProcessorConfig().removeJava(true).build());
+        testRemoving(TEST_JAVA, createProcessorConfig().addExtensionToClear(FileExtension.JAVA).build());
     }
 
     @Test
     public void testRemovingJavaScriptComments() throws CommentRemoverException {
-        testRemoving(TEST_JS, createProcessorConfig().removeJavaScript(true).build());
+        testRemoving(TEST_JS, createProcessorConfig().addExtensionToClear(FileExtension.JS).build());
     }
 
     @Test
     public void testRemovingHtmlComments() throws CommentRemoverException {
-        testRemoving(TEST_HTML, createProcessorConfig().removeHTML(true).build());
+        testRemoving(TEST_HTML, createProcessorConfig().addExtensionToClear(FileExtension.HTML).build());
     }
 
     @Test
     public void testRemovingXMLComments() throws CommentRemoverException {
-        testRemoving(TEST_XML, createProcessorConfig().removeXML(true).build());
+        testRemoving(TEST_XML, createProcessorConfig().addExtensionToClear(FileExtension.XML).build());
     }
 
     @Test
     public void testRemovingJSPComments() throws CommentRemoverException {
-        testRemoving(TEST_JSP, createProcessorConfig().removeJSP(true).build());
+        testRemoving(TEST_JSP, createProcessorConfig().addExtensionToClear(FileExtension.JSP).build());
     }
 
     @Test
     public void testRemovingPropertiesComments() throws CommentRemoverException {
-        testRemoving(TEST_PROPERTIES, createProcessorConfig().removeProperties(true).build());
+        testRemoving(TEST_PROPERTIES, createProcessorConfig().addExtensionToClear(FileExtension.PROPERTIES).build());
     }
 
     @Test
     public void testRemovingCSSComments() throws CommentRemoverException {
-        testRemoving(TEST_CSS, createProcessorConfig().removeCSS(true).build());
+        testRemoving(TEST_CSS, createProcessorConfig().addExtensionToClear(FileExtension.CSS).build());
     }
 
-    private void testRemoving(String fileName, CommentRemover remover) throws CommentRemoverException {
+    private void testRemoving(String fileName, CommentRemoverConfiguration configuration) throws CommentRemoverException {
         Path processedFile = copyToWorkDir(fileName);
         Path compareFile = Paths.get(compareFilePath, fileName);
 
-        new CommentProcessor(remover).start();
+        new CommentProcessor(configuration).start();
         compareFiles(processedFile, compareFile);
     }
 
@@ -102,11 +104,10 @@ public class CommentProcessorTest {
         return targetFile;
     }
 
-    private CommentRemover.CommentRemoverBuilder createProcessorConfig() {
-        return CommentRemover.builder()
-                .removeSingleLines(true)
-                .removeMultiLines(true)
-                .startExternalPath(workDirectoryPath);
+    private CommentRemoverConfiguration.Builder createProcessorConfig() {
+        return CommentRemoverConfiguration.builder()
+                .addCommentTypes(CommentType.SINGLE_LINE, CommentType.MULTI_LINE)
+                .withStartPath(workDirectoryPath, false);
     }
 
     private void compareFiles(Path processedPath, Path comparePath) {

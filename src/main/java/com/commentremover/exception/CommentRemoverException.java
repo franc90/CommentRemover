@@ -1,12 +1,9 @@
 package com.commentremover.exception;
 
-public class CommentRemoverException extends Exception {
-
-    public CommentRemoverException() {
-        super();
-    }
+public class CommentRemoverException extends RuntimeException {
 
     public CommentRemoverException(String message) {
         super(message);
     }
+
 }

@@ -1,7 +1,6 @@
 package com.commentremover.app;
 
 import com.commentremover.exception.CommentRemoverException;
-import com.commentremover.handling.UserInputHandler;
 import com.commentremover.utility.CommentUtility;
 
 import java.io.IOException;
@@ -9,46 +8,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 public class CommentProcessor {
 
-    private final CommentRemover commentRemover;
-    private final UserInputHandler userInputHandler;
-    private final ProgressDisplayer progressDisplayer = new ProgressDisplayer();
+    private final CommentRemoverInitializer initializer = new CommentRemoverInitializer();
+    private final ProgressPresenter progressPresenter = new ProgressPresenter();
+    private final CommentRemoverConfiguration configuration;
 
-    public CommentProcessor(CommentRemover commentRemover) {
-        this.commentRemover = commentRemover;
-        this.userInputHandler = new UserInputHandler(commentRemover);
+    public CommentProcessor(CommentRemoverConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     public void start() throws CommentRemoverException, StackOverflowError {
-        userInputHandler.checkAllStates();
-        progressDisplayer.displayProgressByDots();
-        doProcess();
-        progressDisplayer.stopDisplayingProgress();
+        CustomFileVisitor customFileVisitor = initializer.initialize(configuration);
+        progressPresenter.displayProgressByDots();
+        doProcess(customFileVisitor);
+        progressPresenter.stopDisplayingProgress();
     }
 
-    private void doProcess() {
-
+    private void doProcess(CustomFileVisitor customFileVisitor) {
         final Path startingPath = Paths.get(getSelectedStartingPath());
 
         try {
-            Files.walkFileTree(startingPath, new CustomFileVisitor(commentRemover, startingPath));
+            Files.walkFileTree(startingPath, customFileVisitor);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    // todo remove - sth similar in com.commentremover.app.VisitorConfig
     private String getSelectedStartingPath() {
-
-        String startInternalPath = commentRemover.getStartInternalPath();
-        String startExternalPath = commentRemover.getStartExternalPath();
-
-        if (startInternalPath != null) {
-            return CommentUtility.getStartInternalPathInValidForm(startInternalPath);
-        } else {
-            return CommentUtility.getStartExternalPathInValidForm(startExternalPath);
+        if (configuration.isInternal()) {
+            return CommentUtility.getStartInternalPathInValidForm(configuration.getStartPath());
         }
+        return CommentUtility.getStartExternalPathInValidForm(configuration.getStartPath());
     }
 
 }

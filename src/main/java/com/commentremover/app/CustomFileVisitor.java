@@ -9,21 +9,16 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 
-    private final List<String> excludePackagesPaths;
-
     private final FileProcessRouter fileProcessRouter;
+    private final Set<String> excludePackagesPaths;
 
-    private final CommentRemover commentRemover;
-
-    public CustomFileVisitor(CommentRemover commentRemover, Path startingPath) {
-        this.commentRemover = commentRemover;
-        this.fileProcessRouter = new FileProcessRouter(commentRemover);
-        excludePackagesPaths = getExcludePackagesPathsInValidForm(commentRemover.getExcludePackages(), startingPath.toString());
+    public CustomFileVisitor(VisitorConfig config) {
+        this.fileProcessRouter = new FileProcessRouter(config.getExtensionsToClear());
+        this.excludePackagesPaths = config.getExcludePackagePaths();
     }
 
     @Override
@@ -55,8 +50,7 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
 
         try {
             String filePath = file.toString();
-            fileProcessRouter.setCurrentFilePath(filePath);
-            fileProcessRouter.removeComments();
+            fileProcessRouter.removeComments(filePath);
         } catch (CommentRemoverException e) {
             System.err.println(e.getMessage());
         } catch (StackOverflowError e) {
@@ -77,21 +71,6 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
         return super.postVisitDirectory(dir, exc);
-    }
-
-    private List<String> getExcludePackagesPathsInValidForm(List<String> excludePackagesPaths, String startingPath) {
-
-        if (excludePackagesPaths.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return isStartInternalPathSelected() ?
-                CommentUtility.getExcludePackagesInValidFormForInternalStarting(excludePackagesPaths) :
-                CommentUtility.getExcludePackagesInValidFormForExternalStarting(startingPath, excludePackagesPaths);
-    }
-
-    private boolean isStartInternalPathSelected() {
-        return commentRemover.getStartInternalPath() != null;
     }
 
 }

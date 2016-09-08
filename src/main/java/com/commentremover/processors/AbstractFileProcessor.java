@@ -1,6 +1,6 @@
 package com.commentremover.processors;
 
-import com.commentremover.app.CommentRemover;
+import com.commentremover.app.CommentRemoverConfiguration;
 import com.commentremover.exception.CommentRemoverException;
 
 import java.io.BufferedReader;
@@ -20,19 +20,14 @@ public abstract class AbstractFileProcessor implements FileProcessor {
 
     protected abstract StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher);
 
-    protected final CommentRemover commentRemover;
-    private String currentFilePath;
-
-    protected AbstractFileProcessor(CommentRemover commentRemover) {
-        this.commentRemover = commentRemover;
-    }
+    protected CommentRemoverConfiguration configuration;
 
     @Override
-    public void setCurrentFilePath(String currentFilePath) {
-        this.currentFilePath = currentFilePath;
+    public void initialize(CommentRemoverConfiguration configuration) {
+        this.configuration = configuration;
     }
 
-    public void replaceCommentsWithBlanks(Pattern pattern) throws IOException, CommentRemoverException {
+    protected void replaceCommentsWithBlanks(String currentFilePath, Pattern pattern) throws IOException, CommentRemoverException {
 
         File file = new File(currentFilePath);
         checkFileSize(file);
@@ -46,7 +41,7 @@ public abstract class AbstractFileProcessor implements FileProcessor {
         setFileContent(file, newContent.toString());
     }
 
-    protected void checkFileSize(File file) throws CommentRemoverException {
+    private void checkFileSize(File file) throws CommentRemoverException {
 
         long fileSize = file.length();
 
@@ -68,7 +63,7 @@ public abstract class AbstractFileProcessor implements FileProcessor {
         return content;
     }
 
-    protected void setFileContent(File file, String newContent) throws IOException {
+    private void setFileContent(File file, String newContent) throws IOException {
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));) {
             bw.write(newContent);

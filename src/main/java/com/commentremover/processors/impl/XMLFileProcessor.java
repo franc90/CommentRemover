@@ -1,7 +1,7 @@
 package com.commentremover.processors.impl;
 
-import com.commentremover.app.CommentRemover;
 import com.commentremover.exception.CommentRemoverException;
+import com.commentremover.handling.CommentType;
 import com.commentremover.handling.RegexSelector;
 import com.commentremover.pattern.FileExtension;
 import com.commentremover.processors.AbstractFileProcessor;
@@ -13,13 +13,9 @@ import java.util.regex.Pattern;
 
 public class XMLFileProcessor extends AbstractFileProcessor {
 
-    public XMLFileProcessor(CommentRemover commentRemover) {
-        super(commentRemover);
-    }
-
     @Override
-    public void replaceCommentsWithBlanks() throws IOException, CommentRemoverException {
-        super.replaceCommentsWithBlanks(RegexSelector.getRegexByFileType(FileExtension.XML));
+    public void replaceCommentsWithBlanks(String currentFilePath) throws IOException, CommentRemoverException {
+        super.replaceCommentsWithBlanks(currentFilePath, RegexSelector.getRegexByFileType(FileExtension.XML));
     }
 
     @Override
@@ -30,7 +26,7 @@ public class XMLFileProcessor extends AbstractFileProcessor {
     @Override
     protected StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher) throws StackOverflowError {
         String sFileContent = fileContent.toString();
-        boolean isTodosRemoving = commentRemover.isRemoveTodos();
+        boolean isTodosRemoving = configuration.containsType(CommentType.TODO);
 
         while (matcher.find()) {
 
