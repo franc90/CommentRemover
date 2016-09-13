@@ -1,48 +1,49 @@
 package com.commentremover.processors;
 
-import com.commentremover.app.CommentRemoverConfiguration;
 import com.commentremover.exception.CommentRemoverException;
+import com.commentremover.processors.conditions.RemoveCondition;
+import com.commentremover.processors.file.content.ContentLoader;
+import com.commentremover.processors.file.content.FileWriter;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractFileProcessor implements FileProcessor {
 
-    protected abstract StringBuilder getFileContent(File file) throws IOException, CommentRemoverException;
+    private final FileWriter fileWriter = new FileWriter();
 
-    protected abstract StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher);
+    private List<RemoveCondition> removeConditions = new LinkedList<>();
 
-    protected CommentRemoverConfiguration configuration;
+    private ContentLoader loader;
+
+    protected abstract Pattern getPattern();
 
     @Override
-    public void initialize(CommentRemoverConfiguration configuration) {
-        this.configuration = configuration;
+    public void setLoader(ContentLoader loader) {
+        this.loader = loader;
     }
 
-    protected void replaceCommentsWithBlanks(String currentFilePath, Pattern pattern) throws IOException, CommentRemoverException {
+    @Override
+    public void addRemoveCondition(RemoveCondition removeCondition) {
+        removeConditions.add(removeCondition);
+    }
 
+    @Override
+    public void replaceCommentsWithBlanks(String currentFilePath) throws IOException, CommentRemoverException {
         File file = new File(currentFilePath);
         checkFileSize(file);
 
-        StringBuilder fileContent = getFileContent(file);
-
-        Matcher matcher = pattern.matcher(fileContent);
-
+        StringBuilder fileContent = loader.loadContent(file);
+        Matcher matcher = getPattern().matcher(fileContent);
         StringBuilder newContent = doRemoveOperation(fileContent, matcher);
-
-        setFileContent(file, newContent.toString());
+        fileWriter.setFileContent(file, newContent.toString());
     }
 
     private void checkFileSize(File file) throws CommentRemoverException {
-
         long fileSize = file.length();
 
         if (fileSize > Integer.MAX_VALUE) {
@@ -50,29 +51,31 @@ public abstract class AbstractFileProcessor implements FileProcessor {
         }
     }
 
-    protected StringBuilder getPlainFileContent(File file) throws IOException, CommentRemoverException {
+    protected StringBuilder doRemoveOperation(StringBuilder fileContent, Matcher matcher) {
+        String sFileContent = fileContent.toString();
+        while (matcher.find()) {
 
-        StringBuilder content = new StringBuilder((int) file.length());
+            String foundToken = matcher.group();
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
-            for (String temp = br.readLine(); temp != null; temp = br.readLine()) {
-                content.append(temp).append("\n");
+            if (canBeRemoved(foundToken)) {
+                sFileContent = sFileContent.replaceFirst(Pattern.quote(foundToken), "");
             }
         }
 
-        return content;
+        fileContent = new StringBuilder(sFileContent);
+        return fileContent;
     }
 
-    private void setFileContent(File file, String newContent) throws IOException {
-
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));) {
-            bw.write(newContent);
-            bw.flush();
+    protected boolean canBeRemoved(String token) {
+        boolean canBeRemoved = true;
+        for (RemoveCondition removeCondition : removeConditions) {
+            canBeRemoved &= removeCondition.canBeRemoved(token);
         }
-
+        return canBeRemoved;
     }
 
     protected boolean doesContainTodo(String foundToken) {
         return Pattern.compile(Pattern.quote("todo"), Pattern.CASE_INSENSITIVE).matcher(foundToken).find();
     }
+
 }

@@ -1,11 +1,11 @@
 package com.commentremover.pattern;
 
 import com.commentremover.processors.FileProcessor;
-import com.commentremover.processors.impl.CSSFileProcessor;
-import com.commentremover.processors.impl.JSPFileProcessor;
-import com.commentremover.processors.impl.JavaFileProcessor;
-import com.commentremover.processors.impl.PropertyFileProcessor;
-import com.commentremover.processors.impl.XMLFileProcessor;
+import com.commentremover.processors.impl.CSSProcessor;
+import com.commentremover.processors.impl.JSPProcessor;
+import com.commentremover.processors.impl.JavaProcessor;
+import com.commentremover.processors.impl.PropertyProcessor;
+import com.commentremover.processors.impl.XMLProcessor;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -13,13 +13,13 @@ import java.util.List;
 
 public enum FileExtension {
 
-    JAVA("java", new JavaFileProcessor()),
-    JS("js", new JavaFileProcessor()),
-    JSP("jsp", new JSPFileProcessor()),
-    HTML("html", new XMLFileProcessor()),
-    CSS("css", new CSSFileProcessor()),
-    PROPERTIES("properties", new PropertyFileProcessor()),
-    XML("xml", new XMLFileProcessor());
+    JAVA("java", new JavaProcessor()),
+    JS("js", new JavaProcessor()),
+    JSP("jsp", new JSPProcessor()),
+    HTML("html", new XMLProcessor()),
+    CSS("css", new CSSProcessor()),
+    PROPERTIES("properties", new PropertyProcessor()),
+    XML("xml", new XMLProcessor());
 
     private final String fileExtension;
     private final FileProcessor fileProcessor;

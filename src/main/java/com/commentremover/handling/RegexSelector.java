@@ -13,20 +13,20 @@ public class RegexSelector {
 
             case JS:
             case JAVA:
-                return RegexPatterns.getCommentRegexMultiAndSingleLine();
+                return RegexPatterns.COMMENT_REGEX_MULTI_AND_SINGLE_LINE;
 
             case PROPERTIES:
-                return RegexPatterns.getCommentRegexProperties();
+                return RegexPatterns.COMMENT_REGEX_PROPERTIES;
 
             case CSS:
-                return RegexPatterns.getCommentRegexCss();
+                return RegexPatterns.COMMENT_REGEX_CSS;
 
             case JSP:
-                return RegexPatterns.getCommentRegexJsp();
+                return RegexPatterns.COMMENT_REGEX_JSP;
 
             case XML:
             case HTML:
-                return RegexPatterns.getCommentRegexHtmlXml();
+                return RegexPatterns.COMMENT_REGEX_HTML_XML;
             default:
                 return null;
         }
