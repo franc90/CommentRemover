@@ -8,21 +8,25 @@ import com.commentremover.processors.impl.PropertyProcessor;
 import com.commentremover.processors.impl.XMLProcessor;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public enum FileExtension {
 
-    JAVA("java", new JavaProcessor()),
-    JS("js", new JavaProcessor()),
-    JSP("jsp", new JSPProcessor()),
-    HTML("html", new XMLProcessor()),
-    CSS("css", new CSSProcessor()),
-    PROPERTIES("properties", new PropertyProcessor()),
-    XML("xml", new XMLProcessor());
+    JAVA("java", new JavaProcessor(), RegexPatterns.MULTI_AND_SINGLE_LINE),
+    JS("js", new JavaProcessor(), RegexPatterns.MULTI_AND_SINGLE_LINE),
+    JSP("jsp", new JSPProcessor(), RegexPatterns.JSP),
+    HTML("html", new XMLProcessor(), RegexPatterns.HTML_XML),
+    CSS("css", new CSSProcessor(), RegexPatterns.CSS),
+    PROPERTIES("properties", new PropertyProcessor(), RegexPatterns.PROPERTIES),
+    XML("xml", new XMLProcessor(), RegexPatterns.HTML_XML);
 
     private final String fileExtension;
     private final FileProcessor fileProcessor;
+    private final Set<Pattern> patterns;
 
     private static final List<String> supportedExtensions = new LinkedList<>();
 
@@ -32,9 +36,14 @@ public enum FileExtension {
         }
     }
 
-    FileExtension(String fileExtension, FileProcessor fileProcessor) {
+    FileExtension(String fileExtension, FileProcessor fileProcessor, Pattern pattern, Pattern... optionalPatterns) {
         this.fileExtension = fileExtension;
         this.fileProcessor = fileProcessor;
+        this.patterns = new HashSet<>();
+        this.patterns.add(pattern);
+        for (Pattern optionalPattern : optionalPatterns) {
+            this.patterns.add(optionalPattern);
+        }
     }
 
     public String getFileExtension() {
@@ -43,6 +52,10 @@ public enum FileExtension {
 
     public FileProcessor getFileProcessor() {
         return fileProcessor;
+    }
+
+    public Set<Pattern> getPatterns() {
+        return patterns;
     }
 
     public static boolean isExtensionSupported(String fileExtension) {

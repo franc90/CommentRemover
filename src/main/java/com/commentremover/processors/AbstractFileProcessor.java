@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +21,7 @@ public abstract class AbstractFileProcessor implements FileProcessor {
 
     private ContentLoader loader;
 
-    protected abstract Pattern getPattern();
+    protected abstract Set<Pattern> getPatterns();
 
     @Override
     public void setLoader(ContentLoader loader) {
@@ -37,10 +38,12 @@ public abstract class AbstractFileProcessor implements FileProcessor {
         File file = new File(currentFilePath);
         checkFileSize(file);
 
-        StringBuilder fileContent = loader.loadContent(file);
-        Matcher matcher = getPattern().matcher(fileContent);
-        StringBuilder newContent = doRemoveOperation(fileContent, matcher);
-        fileWriter.setFileContent(file, newContent.toString());
+        StringBuilder content = loader.loadContent(file);
+        for (Pattern pattern : getPatterns()) {
+            Matcher matcher = pattern.matcher(content);
+            content = doRemoveOperation(content, matcher);
+        }
+        fileWriter.setFileContent(file, content.toString());
     }
 
     private void checkFileSize(File file) throws CommentRemoverException {

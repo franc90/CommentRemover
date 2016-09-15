@@ -1,7 +1,7 @@
 package com.commentremover.app;
 
 import com.commentremover.exception.CommentRemoverException;
-import com.commentremover.utility.CommentUtility;
+import com.commentremover.utility.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,9 +38,9 @@ public class CommentProcessor {
     // todo remove - sth similar in com.commentremover.app.VisitorConfig
     private String getSelectedStartingPath() {
         if (configuration.isInternal()) {
-            return CommentUtility.getStartInternalPathInValidForm(configuration.getStartPath());
+            return FileUtils.getStartInternalPathInValidForm(configuration.getStartPath());
         }
-        return CommentUtility.getStartExternalPathInValidForm(configuration.getStartPath());
+        return FileUtils.getStartExternalPathInValidForm(configuration.getStartPath());
     }
 
 }

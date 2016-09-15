@@ -5,6 +5,11 @@ package com.commentremover.handling;
  */
 public enum CommentType {
 
-    TODO, MULTI_LINE, SINGLE_LINE, CLASS_HEADER, COPYRIGHT, DOCUMENTATION
+    TODO,
+    MULTI_LINE,
+    SINGLE_LINE,
+    CLASS_HEADER,
+    COPYRIGHT,
+    DOCUMENTATION
 
 }

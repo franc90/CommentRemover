@@ -2,7 +2,7 @@ package com.commentremover.app;
 
 import com.commentremover.exception.CommentRemoverException;
 import com.commentremover.pattern.FileExtension;
-import com.commentremover.utility.CommentUtility;
+import com.commentremover.utility.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -43,7 +43,7 @@ public class CustomFileVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException, StackOverflowError {
 
         String fileName = file.getFileName().toString();
-        String fileExtension = CommentUtility.getExtension(fileName);
+        String fileExtension = FileUtils.getExtension(fileName);
         if (!FileExtension.isExtensionSupported(fileExtension)) {
             return FileVisitResult.CONTINUE;
         }

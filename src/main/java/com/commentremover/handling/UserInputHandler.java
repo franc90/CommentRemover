@@ -2,7 +2,7 @@ package com.commentremover.handling;
 
 import com.commentremover.app.CommentRemoverConfiguration;
 import com.commentremover.exception.CommentRemoverException;
-import com.commentremover.utility.CommentUtility;
+import com.commentremover.utility.FileUtils;
 import com.commentremover.utility.StringUtils;
 
 import java.io.File;
@@ -50,9 +50,9 @@ public class UserInputHandler {
 
     private static String getFullStartingPath(CommentRemoverConfiguration configuration) {
         if (configuration.isInternal()) {
-            return CommentUtility.getStartInternalPathInValidForm(configuration.getStartPath());
+            return FileUtils.getStartInternalPathInValidForm(configuration.getStartPath());
         }
-        return CommentUtility.getStartExternalPathInValidForm(configuration.getStartPath());
+        return FileUtils.getStartExternalPathInValidForm(configuration.getStartPath());
     }
 
     private void checkIfExists(String fullStartingPath) throws CommentRemoverException {
@@ -81,8 +81,8 @@ public class UserInputHandler {
         }
 
         if (configuration.isInternal()) {
-            return CommentUtility.getExcludePackagesInValidFormForInternalStarting(excludePackagesPaths);
+            return FileUtils.getExcludePackagesInValidFormForInternalStarting(excludePackagesPaths);
         }
-        return CommentUtility.getExcludePackagesInValidFormForExternalStarting(configuration.getStartPath(), excludePackagesPaths);
+        return FileUtils.getExcludePackagesInValidFormForExternalStarting(configuration.getStartPath(), excludePackagesPaths);
     }
 }
